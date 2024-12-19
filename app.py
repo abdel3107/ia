@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import pandas as pd
 import joblib
-from models.drugPrescription import recommend_medication
+from models.drugPrescription import recommend_medication, getSymptomList
 
 
 # Initialize Flask app
@@ -31,6 +31,16 @@ def predict():
     return jsonify({
         "disease": medications[0],
         "medications": medications[1]
+    })
+
+@app.route('/getSymptoms', methods=['GET'])
+def getSymptoms():
+
+    symptoms = getSymptomList()
+
+    # Return the predictions as a JSON response
+    return jsonify({
+        "symptoms": symptoms.tolist()
     })
 
 # Run the Flask app

@@ -279,6 +279,9 @@ mlb.fit(merged_df['All_Symptoms'].tolist())
 # Check the unique symptoms it has learned
 print(mlb.classes_)  # assuming the symptoms are in a list format
 
+def getSymptomList():
+    return mlb.classes_
+
 # %% md
 
 # %%
