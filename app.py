@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 import pandas as pd
 import joblib
+from models.drugPrescription import recommend_medication
+
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -16,34 +18,20 @@ def predict():
     # Parse JSON input
     data = request.json
     symptoms = data.get('symptoms', [])
-
-    if not symptoms:
+    # Ensure that symptoms are provided
+    if 'symptoms' not in data:
         return jsonify({"error": "No symptoms provided"}), 400
 
-    # Encode symptoms using the MultiLabelBinarizer
-    encoded_symptoms = pd.DataFrame(mlb.transform([symptoms]), columns=mlb.classes_)
-    encoded_symptoms = encoded_symptoms.reindex(columns=model.feature_names_in_, fill_value=0)
+    symptoms = data['symptoms']
 
+    # Call your recommend_medication function
+    medications = recommend_medication(symptoms)
 
-
-    # Predict the disease
-    predicted_disease = model.predict(encoded_symptoms)[0]
-
-    # Get corresponding medications
-    prescribed_medications = medications_df.loc[medications_df['Disease'] == predicted_disease, 'Medication']
-
-    if not prescribed_medications.empty:
-        medications_list = prescribed_medications.iloc[0]  # Assuming one row per disease
-    else:
-        medications_list = "No medications found for this disease."
-
-    # Return the prediction and medications
-    response = {
-        "predicted_disease": predicted_disease,
-        "medications": medications_list
-    }
-    return jsonify(response)
-
+    # Return the predictions as a JSON response
+    return jsonify({
+        "disease": medications[0],
+        "medications": medications[1]
+    })
 
 # Run the Flask app
 if __name__ == '__main__':
